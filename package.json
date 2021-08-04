@@ -1,0 +1,16 @@
+{
+  "name": "com.bitHeads.braincloud",
+  "version": "1.0.0",
+  "displayName": "Brain Cloud Client",
+  "description": "Brain Cloud Client and Plugins",
+  "unity": "2019.1.0f2",
+
+ "keywords": [
+    "braincloud",
+    "bitheads",
+    "braincloudlclient"
+  ],
+  "author": {
+    "name": "bitHeads"
+  }
+}
