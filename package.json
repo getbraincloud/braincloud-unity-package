@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "displayName": "Brain Cloud Client",
   "description": "Brain Cloud Client and Plugins",
-  "unity": "2019.1.0f2",
+  "unity": "2019.1",
 
  "keywords": [
     "braincloud",
