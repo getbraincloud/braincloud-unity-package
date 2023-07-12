@@ -9,10 +9,10 @@
   "changelogUrl": "https://example.com/changelog.html",
   "dependencies": {
  },
- "keywords": ["brainCloud"
+ "keywords": ["braincloud"
   ],
   "author": {
-    "name": "bitHeads Inc",
+    "name": "bitheads Inc",
     "email": "",
     "url": "https://www.getbraincloud.com"
   }
