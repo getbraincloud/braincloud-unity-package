@@ -403,12 +403,15 @@ using UnityEngine.Experimental.Networking;
             ServerURL = serverURL;
 
             string suffix = @"/dispatcherv2";
+	    Uri url = ValidateURL(serverURL);
+            ServerURL = url.AbsoluteUri;
+
             string formatURL = ServerURL.EndsWith(suffix) ? ServerURL.Substring(0, ServerURL.Length - suffix.Length) : ServerURL;
-            
-            //get rid of trailing / 
-            while (formatURL.Length > 0 && formatURL.EndsWith("/"))
+
+            //get rid of trailing "/" for format URL
+			if(formatURL.Length > 0 && formatURL.EndsWith("/"))
             {
-                 formatURL = formatURL.Substring(0, formatURL.Length - 1);
+                formatURL = formatURL.TrimEnd('/');
             }
 
             UploadURL = formatURL;
@@ -433,6 +436,32 @@ using UnityEngine.Experimental.Networking;
             AppIdSecretMap = appIdSecretMap;
 
             Initialize(serverURL, defaultAppId, AppIdSecretMap[defaultAppId]);
+        }
+
+        private Uri ValidateURL(string value)
+        {
+            try
+            {
+                UriBuilder builder = new UriBuilder(value)
+                {
+                    Scheme = Uri.UriSchemeHttps
+                };
+            
+                if ((string.IsNullOrEmpty(builder.Path) || builder.Path == "/") &&
+                    !builder.Path.Contains("dispatcherv2"))
+                {
+                    builder.Path += builder.Path.EndsWith("/") ? "dispatcherv2" : "/dispatcherv2";
+                }
+
+                builder.Path = builder.Path.TrimEnd('/');
+            
+                return builder.Uri;
+            }
+            catch
+            {
+                _clientRef.Log("URL provided is not valid. Reverting to default URL: https://api.braincloudservers.com/dispatcherv2");
+                return new Uri("https://api.braincloudservers.com/dispatcherv2");
+            }
         }
 
         public void RegisterEventCallback(EventCallback cb)
@@ -2378,9 +2407,9 @@ using UnityEngine.Experimental.Networking;
     [Serializable]
     internal class JsonResponseBundleV2
     {
-        [JsonName("packetId")]  public long packetId;
-        [JsonName("responses")] public Dictionary<string, object>[] responses;
-        [JsonName("events")]    public Dictionary<string, object>[] events;
+        [JsonName("packetId")]  public long packetId = 0;
+        [JsonName("responses")] public Dictionary<string, object>[] responses = null;
+        [JsonName("events")]    public Dictionary<string, object>[] events = null;
 
         public JsonResponseBundleV2() { }
     }
