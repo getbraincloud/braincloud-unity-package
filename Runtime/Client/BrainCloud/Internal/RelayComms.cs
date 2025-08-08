@@ -111,8 +111,6 @@ namespace BrainCloud.Internal
             if (IsConnected())
             {
                 send(buildDisconnectRequest());
-
-                m_trackedPacketIds.Clear();
             }
             disconnect();
         }
@@ -494,6 +492,8 @@ namespace BrainCloud.Internal
             m_resendConnectRequest = false;
 
             m_connectionType = RelayConnectionType.INVALID;
+            
+            resetTrackedPacketIds();
 
             m_cxIdToNetId.Clear();
             m_netIdToCxId.Clear();
@@ -1532,6 +1532,14 @@ namespace BrainCloud.Internal
             new Dictionary<int, int>(),
             new Dictionary<int, int>()
         };
+
+        private void resetTrackedPacketIds()
+        {
+            for (int i = 0; i < m_trackedPacketIds.Count; ++i)
+            {
+                m_trackedPacketIds[i].Clear();
+            }
+        }
         // end 
 
         private bool m_resendConnectRequest = false;
