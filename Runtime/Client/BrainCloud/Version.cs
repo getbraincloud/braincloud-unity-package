@@ -9,7 +9,7 @@ namespace BrainCloud
     {
         public static string GetVersion()
         {
-            return "5.8.1";
+            return "5.9.0";
         }
     }
 }
