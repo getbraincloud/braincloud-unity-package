@@ -1,0 +1,15 @@
+{
+    "name": "brainCloud",
+    "references": [
+        "GUID:7c45cf4f00f9e7a4ca9c0d8358cacb3e"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
+}
