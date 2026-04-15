@@ -18,6 +18,19 @@ When a new update gets pushed, you can simply hit the **Update** button in the b
 
 ## Updating
 
-Be sure to delete your old brainCloud settings before updating first: `BrainCloud > Resources > BrainCloudEditorSettings_X_X_X` and `BrainCloud > Resources > BrainCloudSettings_X_X_X`.
+Be sure to delete your old brainCloud settings files first.
 
-If you plan on swapping to the brainCloud custom package after installing the brainCloudClient_unity_X.X.X.unitypackage previously, you must delete the old root BrainCloud library files folder `Assets > BrainCloud` in your Unity project, as well as the brainCloud plugin files `Plugins > Android > brainCloudUnity` and `Plugins > iOS > RegionLocaleNative`. If you do not have any additional Plugins, then it is safe to delete the root Plugins folder.
+If you're using an older version of the library then the settings will be located in the `Assets > BrainCloud > Resources` folder:
+- `Assets > BrainCloud > Resources > BrainCloudSettings_X_X_X`
+- `Assets > BrainCloud > Resources > BrainCloudEditorSettings_X_X_X`
+
+Newer versions of the library going forward will have the settings files under the `BrainCloud > Unity` folder:
+- `Assets > BrainCloud > Unity > Resources > BrainCloudSettings_X_X_X`
+- `Assets > BrainCloud > Unity > Editor > Resources > BrainCloudEditorSettings_X_X_X`
+
+If you plan on installing brainCloud via the Package Manager you must delete the old root brainCloud library files folder under `Assets > BrainCloud` in your Unity project. You must also delete the the brainCloud plugin files. Here are all of the brainCloud library files & folders to delete:
+- `Assets > BrainCloud`
+- `Assets > Plugins > Android > brainCloudUnity`
+- `Assets > Plugins > iOS > RegionLocaleNative`
+
+If you do not have any additional Plugins then it is safe to delete the root `Assets > Plugins` folder.
