@@ -78,7 +78,6 @@ public class BrainCloudWrapper
     private static BrainCloudWrapper _instance = null;
 
     private string _lastUrl = "";
-    private string _lastSecretKey = "";
     private string _lastAppId = "";
     private string _lastAppVersion = "";
 
@@ -390,11 +389,12 @@ public class BrainCloudWrapper
     public void Init()
     {
         resetWrapper();
-        Init(
-            BrainCloud.Plugin.Interface.DispatcherURL,
-            BrainCloud.Plugin.Interface.AppSecret,
-            BrainCloud.Plugin.Interface.AppId,
-            BrainCloud.Plugin.Interface.AppVersion);
+        BrainCloud.Plugin.Interface.ApplySigningProfile(profile =>
+            Init(
+                BrainCloud.Plugin.Interface.DispatcherURL,
+                profile,
+                BrainCloud.Plugin.Interface.AppId,
+                BrainCloud.Plugin.Interface.AppVersion));
 
         Client.EnableLogging(BrainCloud.Plugin.Interface.EnableLogging);
     }
@@ -406,13 +406,60 @@ public class BrainCloudWrapper
     public void InitWithApps()
     {
         resetWrapper();
-        InitWithApps(
-            BrainCloud.Plugin.Interface.DispatcherURL,
-            BrainCloud.Plugin.Interface.AppId,
-            BrainCloud.Plugin.Interface.AppIdSecrets,
-            BrainCloud.Plugin.Interface.AppVersion);
+        BrainCloud.Plugin.Interface.ApplyProfiles(appIdSecrets =>
+            InitWithApps(
+                BrainCloud.Plugin.Interface.DispatcherURL,
+                BrainCloud.Plugin.Interface.AppId,
+                appIdSecrets,
+                BrainCloud.Plugin.Interface.AppVersion));
 
         Client.EnableLogging(BrainCloud.Plugin.Interface.EnableLogging);
+    }
+#endif
+
+#if GODOT
+    /// <summary>
+    /// Initializes brainCloud using credentials saved by the brainCloud editor plugin's login
+    /// flow (addons/braincloud/braincloud.cfg), falling back to ProjectSettings for projects
+    /// that haven't logged into the plugin dock yet. Mirrors the Unity SDK's parameterless
+    /// Init() above. If no source has credentials this does nothing (Client.Initialized stays
+    /// false) — callers should fall back to Init(url, secretKey, appId, version) with their
+    /// own parameters in that case.
+    /// </summary>
+    public void Init()
+    {
+        // Godot doesn't generate a strongly-typed C# binding for a GDExtension class like it
+        // does for its own built-in API, so this is called dynamically rather than via
+        // `new BrainCloudNative()` -- there is no such compile-time type.
+        var native = Godot.ClassDB.Instantiate("BrainCloudNative").AsGodotObject();
+        native.Call("resolve_config", "res://addons/braincloud/braincloud.cfg",
+            Godot.Callable.From((string appId, Godot.Callable sign) =>
+            {
+                string appVersion = Godot.ProjectSettings.GetSetting("braincloud/config/app_version", "1.0.0").AsString();
+                string serverUrl = Godot.ProjectSettings.GetSetting(
+                    "braincloud/config/server_url", "https://api.braincloudservers.com/dispatcherv2").AsString();
+
+                Init(serverUrl, payloadBytes => sign.Call(payloadBytes).AsString(), appId, appVersion);
+
+                Client.EnableLogging(Godot.ProjectSettings.GetSetting("braincloud/debug/enable_logging", false).AsBool());
+                Client.EnableCompressedRequests(
+                    Godot.ProjectSettings.GetSetting("braincloud/config/enable_compression", true).AsBool());
+            }));
+    }
+#endif
+
+#if DOT_NET
+    /// <summary>
+    /// Initializes brainCloud using credentials from a local braincloud.cfg file next to the
+    /// executable (written by BrainCloudNative's local dev tool). Mirrors the Unity/Godot SDKs'
+    /// parameterless Init() above. If no config is found this does nothing (Client.Initialized
+    /// stays false) — callers should fall back to Init(url, secretKey, appId, version) with
+    /// their own parameters in that case.
+    /// </summary>
+    public void Init()
+    {
+        BrainCloud.Native.NativeConfig.UseConfig(BrainCloud.Native.NativeConfig.DefaultPath,
+            (appId, signRequest, serverUrl, version) => Init(serverUrl, signRequest, appId, version));
     }
 #endif
 
@@ -428,10 +475,25 @@ public class BrainCloudWrapper
     {
         resetWrapper();
         _lastUrl = url;
-        _lastSecretKey = secretKey;
         _lastAppId = appId;
         _lastAppVersion = version;
         Client.Initialize(url, secretKey, appId, version);
+
+        LoadData();
+    }
+
+    /// <summary>Initialize the brainCloud client with a signing profile instead of a secret.</summary>
+    /// <param name="url">The brainCloud server url</param>
+    /// <param name="appProfile">Signs a given payload</param>
+    /// <param name="appId">The app's id</param>
+    /// <param name="version">The app's version</param>
+    public void Init(string url, Func<byte[], string> appProfile, string appId, string version)
+    {
+        resetWrapper();
+        _lastUrl = url;
+        _lastAppId = appId;
+        _lastAppVersion = version;
+        Client.Initialize(url, appProfile, appId, version);
 
         LoadData();
     }
@@ -448,7 +510,6 @@ public class BrainCloudWrapper
     {
         resetWrapper();
         _lastUrl = url;
-        _lastSecretKey = appIdSecretMap[defaultAppId];
         _lastAppId = defaultAppId;
         _lastAppVersion = version;
         Client.InitializeWithApps(url, defaultAppId, appIdSecretMap, version);
@@ -2695,7 +2756,8 @@ public class BrainCloudWrapper
     /// </summary>
     protected virtual void Reauthenticate()
     {
-        Init(_instance._lastUrl, _instance._lastSecretKey, _instance._lastAppId, _instance._lastAppVersion);
+        // Grab the profile before Init() rebuilds Client/Comms.
+        Init(_instance._lastUrl, _instance.Client.Comms.GetAppProfile(), _instance._lastAppId, _instance._lastAppVersion);
         string authType = GetStoredAuthenticationType();
         if (authType == AUTHENTICATION_ANONYMOUS)
         {
