@@ -224,7 +224,7 @@ namespace BrainCloud.Internal
         private List<FileUploader> _fileUploads = new List<FileUploader>();
 
 #if DOT_NET || GODOT
-        private HttpClient _httpClient = new HttpClient(new NativeMessageHandler());
+        private static readonly HttpClient _httpClient = new HttpClient(new NativeMessageHandler());
 #endif
 
         // For handling local session errors
@@ -471,6 +471,22 @@ namespace BrainCloud.Internal
             {
                 string secretKey = kv.Value;
                 _appProfiles[kv.Key] = payloadBytes => ComputeSignatureHash(payloadBytes, System.Text.Encoding.UTF8.GetBytes(secretKey));
+            }
+
+            Initialize(serverURL, defaultAppId, _appProfiles[defaultAppId]);
+        }
+
+        /// <summary>
+        /// Initialize the communications library with a signing profile per app.
+        /// </summary>
+        /// <param name="serverURL">Server URL.</param>
+        /// <param name="defaultAppId">default appId </param>
+        /// <param name="appProfiles">map of appId -> signing profile, used when switching between apps</param>
+        public void InitializeWithApps(string serverURL, string defaultAppId, Dictionary<string, Func<byte[], string>> appProfiles)
+        {
+            foreach (var kv in appProfiles)
+            {
+                _appProfiles[kv.Key] = kv.Value;
             }
 
             Initialize(serverURL, defaultAppId, _appProfiles[defaultAppId]);

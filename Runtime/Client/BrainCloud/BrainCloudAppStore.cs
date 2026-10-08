@@ -36,6 +36,9 @@ namespace BrainCloud
         /// - windows
         /// - windowsPhone
         /// - googlePlay
+        /// - metaHorizon
+        /// - epicGames
+        /// - xsolla
         /// </param>
         /// <param name="userCurrency">
         /// The currency to retrieve the sales
@@ -77,6 +80,9 @@ namespace BrainCloud
         /// - windows
         /// - windowsPhone
         /// - googlePlay
+        /// - metaHorizon
+        /// - epicGames
+        /// - xsolla
         /// </param>
         /// <param name="userCurrency">
         /// The currency to retrieve the sales
@@ -167,6 +173,9 @@ namespace BrainCloud
         /// - windows
         /// - windowsPhone
         /// - googlePlay
+        /// - metaHorizon
+        /// - epicGames
+        /// - xsolla
         /// </param>
         /// <param name="iapId">
         /// The IAP product Id as configured for the product on brainCloud.
@@ -217,6 +226,9 @@ namespace BrainCloud
         /// - windows
         /// - windowsPhone
         /// - googlePlay
+        /// - metaHorizon
+        /// - epicGames
+        /// - xsolla
         /// </param>
         /// <param name="receiptJson">
         /// The specific store data required
@@ -267,14 +279,7 @@ namespace BrainCloud
         /// Service Operation - START_PURCHASE
         /// </remarks>
         /// <param name="storeId">
-        /// The store storeId. Valid stores are:
-        /// - itunes
-        /// - facebook
-        /// - appworld
-        /// - steam
-        /// - windows
-        /// - windowsPhone
-        /// - googlePlay
+        /// The store id. Currently only accepts "steam".
         /// </param>
         /// <param name="purchaseJson">
         /// The specific store data required
@@ -314,14 +319,7 @@ namespace BrainCloud
         /// Service Operation - FINALIZE_PURCHASE
         /// </remarks>
         /// <param name="storeId">
-        /// The store storeId. Valid stores are:
-        /// - itunes
-        /// - facebook
-        /// - appworld
-        /// - steam
-        /// - windows
-        /// - windowsPhone
-        /// - googlePlay
+        /// The store id. Currently only accepts "steam".
         /// </param>
         /// /// <param name="transactionId">
         /// The Transaction Id returned in Start Transaction
